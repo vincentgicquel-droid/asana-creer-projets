@@ -1,0 +1,8 @@
+__pycache__/
+.env
+config.env
+/export*.csv
+/modele-import.csv
+/*.json.tmp
+mapping.json
+runs/
