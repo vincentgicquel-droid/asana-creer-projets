@@ -1050,7 +1050,8 @@ def main():
     parser.add_argument("--list-templates", action="store_true")
     parser.add_argument("--sans-creation", action="store_true")
     parser.add_argument("--sans-champs", action="store_true")
-    parser.add_argument("--rapport", default=None)
+    parser.add_argument("--rapport", default=None,
+                        help="Chemin du rapport JSON (dossiers crees si besoin). Sans cette option : rapport automatique date a cote du CSV d'entree (hors lectures seules)")
     parser.add_argument("--apply", action="store_true")
     parser.add_argument("--ipv4", action="store_true", help="Utiliser IPv4 (liste blanche IP)")
     args = parser.parse_args()
@@ -1104,9 +1105,31 @@ def main():
             "stats": resultat["stats"],
             "lignes": resultat["lignes"],
         }
+        dossier_rapport = os.path.dirname(os.path.abspath(args.rapport))
+        if dossier_rapport:
+            os.makedirs(dossier_rapport, exist_ok=True)
         with open(args.rapport, "w", encoding="utf-8") as fh:
             json.dump(rapport, fh, ensure_ascii=False, indent=2)
         print(f"Rapport JSON ecrit : {args.rapport}")
+    else:
+        # sans --rapport : rapport automatique date a cote du CSV d'entree,
+        # sauf en mode --scan-portfolio / --list-templates (lectures seules)
+        if args.input and not (args.scan_portfolio or args.list_templates):
+            base = os.path.splitext(os.path.basename(args.input))[0]
+            auto = os.path.join(os.path.dirname(os.path.abspath(args.input)),
+                                f"rapport-{base}-{datetime.now():%Y%m%d-%H%M%S}.json")
+            rapport = {
+                "date": datetime.now().isoformat(timespec="seconds"),
+                "mode": "APPLY" if args.apply else "DRY-RUN",
+                "environnement": cfg["env"],
+                "portfolio": portfolio_gid,
+                "input": args.input,
+                "stats": resultat["stats"],
+                "lignes": resultat["lignes"],
+            }
+            with open(auto, "w", encoding="utf-8") as fh:
+                json.dump(rapport, fh, ensure_ascii=False, indent=2)
+            print(f"Rapport JSON ecrit : {auto}")
 
     if resultat["stats"]["erreurs"]:
         sys.exit(2)

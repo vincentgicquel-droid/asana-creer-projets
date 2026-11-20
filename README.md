@@ -115,7 +115,8 @@ Options utiles :
 - `--privacy public_to_workspace|private_to_team|private` (defaut : public au workspace) ;
 - `--pause <s>` : pause entre deux ecritures (defaut 0,5) ;
 - `--job-timeout <s>` : attente max d'une instanciation de modele (defaut 900 s) ;
-- `--rapport <chemin>` : rapport JSON du run (statistiques + statut par ligne) ;
+- `--rapport <chemin>` : rapport JSON du run (statistiques + statut par ligne) ; les dossiers intermediaires sont crees si besoin (ex. `--rapport sorties/novembre/rapport.json`) ;
+- sans `--rapport` : un rapport automatique date est ecrit a cote du CSV d'entree (`rapport-<nom>-<AAAAMMJJ-HHMMSS>.json`), hors lectures seules ;
 - `--ipv4` : forcer IPv4 lorsque l'adresse est autorisee par la liste blanche API ;
 - `--env sandbox|prod` : environnement du `config.env` (defaut sandbox, prod toujours explicite).
 
